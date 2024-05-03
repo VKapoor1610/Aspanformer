@@ -41,6 +41,13 @@ if __name__=='__main__':
 
     img0,img1=cv2.imread(args.img0_path),cv2.imread(args.img1_path)
     img0_g,img1_g=cv2.imread(args.img0_path,0),cv2.imread(args.img1_path,0)
+    
+    img0 = cv2.resize(img0, (256, 512))
+    img1 = cv2.resize(img1, (256, 512))
+    
+    img0_g = cv2.resize(img0, (256, 512))
+    img1_g = cv2.resize(img1, (256, 512))
+
     img0,img1=demo_utils.resize(img0,args.long_dim0),demo_utils.resize(img1,args.long_dim1)
     img0_g,img1_g=demo_utils.resize(img0_g,args.long_dim0),demo_utils.resize(img1_g,args.long_dim1)
     data={'image0':torch.from_numpy(img0_g/255.)[None,None].cuda().float(),

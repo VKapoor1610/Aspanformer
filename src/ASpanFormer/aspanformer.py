@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torchvision import transforms
+import cv2 
 from einops.einops import rearrange
 
 from .backbone import build_backbone
@@ -9,6 +10,10 @@ from .aspan_module import LocalFeatureTransformer_Flow, LocalFeatureTransformer,
 from .utils.coarse_matching import CoarseMatching
 from .utils.fine_matching import FineMatching
 
+def resize(image,long_dim):
+    h,w=image.shape[0],image.shape[1]
+    image=cv2.resize(image,(int(w*long_dim/max(h,w)),int(h*long_dim/max(h,w))))
+    return image
 
 class ASpanFormer(nn.Module):
     def __init__(self, config):
@@ -27,7 +32,7 @@ class ASpanFormer(nn.Module):
         self.fine_matching = FineMatching()
         self.coarsest_level=config['coarse']['coarsest_level']
 
-    def forward(self, data, online_resize=False):
+    def forward(self, img0_path , img1_path , online_resize=False):
         """ 
         Update:
             data (dict): {
@@ -37,6 +42,26 @@ class ASpanFormer(nn.Module):
                 'mask1'(optional) : (torch.Tensor): (N, H, W)
             }
         """
+        
+        img0,img1=cv2.imread(img0_path),cv2.imread(img1_path)
+        img0_g,img1_g=cv2.imread(img0_path,0),cv2.imread(img1_path,0)
+        
+        img0 = cv2.resize(img0, (256, 512))
+        img1 = cv2.resize(img1, (256, 512))
+        
+        img0_g = cv2.resize(img0, (256, 512))
+        img1_g = cv2.resize(img1, (256, 512))
+
+        long_dim0 = 512 
+        long_dim1 = 512
+        
+        img0,img1=resize(img0,long_dim0),resize(img1,long_dim1)
+        img0_g,img1_g=resize(img0_g,long_dim0),resize(img1_g,long_dim1)
+
+        data={'image0':torch.from_numpy(img0_g/255.)[None,None].cuda().float(),
+            'image1':torch.from_numpy(img1_g/255.)[None,None].cuda().float()} 
+ 
+        
         if online_resize:
             assert data['image0'].shape[0]==1 and data['image1'].shape[1]==1
             self.resize_input(data,self.config['coarse']['train_res'])
@@ -100,6 +125,9 @@ class ASpanFormer(nn.Module):
         if online_resize:
             data['mkpts0_f']*=data['online_resize_scale0']
             data['mkpts1_f']*=data['online_resize_scale1']
+            
+        return data['mkpts0_f'] , data['mkpts1_f']
+            
         
     def load_state_dict(self, state_dict, *args, **kwargs):
         for k in list(state_dict.keys()):
