@@ -229,18 +229,18 @@ class CoarseMatching(nn.Module):
                     device=_device)
 
             # gt_pad_indices is to select from gt padding. e.g. max(3787-4800, 200)
-            gt_pad_indices = torch.randint(
-                    len(data['spv_b_ids']),
-                    (max(num_matches_train - num_matches_pred,
-                        self.train_pad_num_gt_min), ),
-                    device=_device)
-            mconf_gt = torch.zeros(len(data['spv_b_ids']), device=_device)  # set conf of gt paddings to all zero
+            # gt_pad_indices = torch.randint(
+            #         len(data['spv_b_ids']),
+            #         (max(num_matches_train - num_matches_pred,
+            #             self.train_pad_num_gt_min), ),
+            #         device=_device)
+            # mconf_gt = torch.zeros(len(data['spv_b_ids']), device=_device)  # set conf of gt paddings to all zero
 
-            b_ids, i_ids, j_ids, mconf = map(
-                lambda x, y: torch.cat([x[pred_indices], y[gt_pad_indices]],
-                                       dim=0),
-                *zip([b_ids, data['spv_b_ids']], [i_ids, data['spv_i_ids']],
-                     [j_ids, data['spv_j_ids']], [mconf, mconf_gt]))
+            # b_ids, i_ids, j_ids, mconf = map(
+            #     lambda x, y: torch.cat([x[pred_indices], y[gt_pad_indices]],
+            #                            dim=0),
+            #     *zip([b_ids, data['spv_b_ids']], [i_ids, data['spv_i_ids']],
+            #          [j_ids, data['spv_j_ids']], [mconf, mconf_gt]))
 
         # These matches select patches that feed into fine-level network
         coarse_matches = {'b_ids': b_ids, 'i_ids': i_ids, 'j_ids': j_ids}

@@ -46,11 +46,11 @@ class ASpanFormer(nn.Module):
         img0,img1=cv2.imread(img0_path),cv2.imread(img1_path)
         img0_g,img1_g=cv2.imread(img0_path,0),cv2.imread(img1_path,0)
         
-        img0 = cv2.resize(img0, (256, 512))
-        img1 = cv2.resize(img1, (256, 512))
+        # img0 = cv2.resize(img0, (256, 512))
+        # img1 = cv2.resize(img1, (256, 512))
         
-        img0_g = cv2.resize(img0, (256, 512))
-        img1_g = cv2.resize(img1, (256, 512))
+        # img0_g = cv2.resize(img0, (256, 512))
+        # img1_g = cv2.resize(img1, (256, 512))
 
         long_dim0 = 512 
         long_dim1 = 512
